@@ -1,0 +1,93 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AddProduct</title>
+    <script src="~/js/Vue.js"></script>
+    <script src="~/js/axios.js"></script>
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <!--startprint1-->
+        <!--打印内容开始-->
+        <div id="app">
+            <table class="table table-bordered">
+                <tr>
+                    <td>状态</td>
+                    <td>
+                        <select v-model="obj.Sid" v-on:change="ruType($event)">
+                            <option value="">请选择</option>
+                            <option v-for="(row,index) in info1" :key="index" :value="row.sid">{{row.sName}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td> <button v-on:click="Upt">修改</button></td>
+                    <td><button v-on:click="preview(1)">打印</button></td>
+                </tr>
+            </table>
+
+        </div>
+        <!--打印内容结束-->
+        <!--endprint1-->
+        <script>
+            var id = location.href;
+            id = id.split("=")[1];
+            var vue = new Vue({
+                el: '#app',
+                data() {
+                    return {
+                        info1: [],
+                        obj: {
+                            Chid: id,
+                            Sid: null
+                        }
+                    }
+                }, mounted: function () {
+                    this.Show();
+                    this.Type()
+                },
+
+                methods: {
+                    //显示入库类型
+                    Type: function () {
+                        axios
+                            .get('http://localhost:57059/api/default/ZTShow')
+                            .then(Response => (this.info1 = Response.data));
+                    },
+                    //获取入库id
+                    ruType(event) {
+                        this.obj.Sid = event.target.value;
+                    },
+                    Show: function () {
+                        axios({
+                            method: "get",
+                            url: "http://localhost:57059/api/PanDian/UpdateShow?id=" + id,
+                        }).then((res) => {
+                            this.obj.Sid = res.data.sid;
+                        })
+                    },
+                    Upt() {
+                        axios
+                            .post('http://localhost:57059/api/PanDian/UpdateZT', this.obj)
+                            .then((res) => {
+                                if (res.data > 0) {
+                                    alert('状态修改成功！');
+                                    location.href = "/ColinPanDian/PDshow";
+                                }
+                            });
+                    }
+                }
+
+            });
+        </script>
+    </div>
+</body>
+</html>

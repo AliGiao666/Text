@@ -1,0 +1,142 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>UpdateJs</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+</head>
+<body>
+    <table class="table table-bordered">
+        <tr>
+            <td>入库类型</td>
+            <td>
+                <select id="Jlid">
+                    <option>请选择</option>
+
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>关联订单</td>
+            <td> <input type="text" id="puRelevance" /></td>
+        </tr>
+        <tr>
+            <td>供应商编号</td>
+            <td> <input type="text" id=" puAuditNum" /></td>
+        </tr>
+        <tr>
+            <td>供应商名称</td>
+            <td> <input type="text" id=" PuSupplierName" /></td>
+
+        </tr>
+        <tr>
+            <td>供应商联系人</td>
+            <td>  <input type="text" id="PuAuditPeople" /></td>
+
+        </tr>
+        <tr>
+
+            <td>供应商联系方式</td>
+            <td>  <input type="text" id="PuAuditPhone" /></td>
+        </tr>
+        <tr>
+            <td>制单人</td>
+            <td>
+                <input type="text" id="PuPrepared" />
+            </td>
+
+        </tr>
+        <tr>
+            <td>制单时间</td>
+            <td> <input type="text" id="PuPreparedTime" /></td>
+        </tr>
+        <tr>
+            <td>备注</td>
+
+            <td><input type="text" id="PuAddres" /></td>
+        </tr>
+        <tr>
+            <td><input id="Upt" type="button" value="修改" /></td>
+            <td>
+                <input id="Button1" type="button" value="取消" onclick="location.href = '/Colinruku/show'" />
+            </td>
+
+        </tr>
+    </table>
+    <script>
+        $(function () {
+            var Sid = window.location.toString().split("?")[1].split("=")[1];
+            Type(); 
+            Update(Sid);
+            $("#Save").click(function () {
+                var obj = {};
+                obj.ID = Sid;
+                obj.Name = $("#Name").val();
+                obj.Type = $("#TName option:selected").val();
+                obj.Num = $("#Num").val();
+                obj.Balance = $("#Balance").val();
+                obj.Number = $("#Number").val();
+                obj.BalanceNum = $("#BalanceNum").val();
+                obj.Common = $("#Common").val();
+                obj.State = $("#SName option:selected").val();
+
+                $.ajax({
+                    url: "http://localhost:50084/api/update", //要处理的页面
+                    data: obj,  //要传过去的数据
+                    type: "POST",  //提交方式
+                    dataType: "TEXT", //返回的数据类型，TEXT字符串 JSON返回JSON XML返回XML；dataType中T要大写！！
+                    success: function (res) { //回调函数，data为形参，是从login-cl.php页面返回的值
+                        if (res > 0) {
+                            alert("修改成功");
+                            location.href = "http://localhost:56509/Red/Display";
+                        }
+                        else {
+                            alert("修改失败");
+                        }
+                    }
+                });
+            });
+
+        });
+        function Update(ID) {
+            $.ajax({
+                url: "http://localhost:50084/api/Rebellion",
+                data: { ID: ID },
+                dataType: "json",
+                type: "get",
+                success: function (result) {
+                    $("#Name").val(result.Name);
+                    $("#TName").val(result.TName);
+                    $("#Num").val(result.Num);
+                    $("#Balance").val(result.Balance);
+                    $("#Number").val(result.Number);
+                    $("#BalanceNum").val(result.BalanceNum);
+                    $("#Common").val(result.Common);
+                    $("#SName").val(result.SName);
+                }
+            });
+        }
+        function Type() {
+            $.ajax({
+                url: "http://localhost:50084/api/TShow",
+                dataType: "json",
+                type: "get",
+                success: function (result) {
+                    $(result).each(function (i, n) {
+                        $("#TName").append("<option value='" + n.TID + "'>" + n.TName + "</option>");
+                    })
+                }
+            })
+        };
+
+
+    </script>
+</body>
+</html>

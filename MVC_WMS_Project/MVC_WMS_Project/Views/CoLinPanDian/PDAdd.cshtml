@@ -1,0 +1,67 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PDAdd</title>
+    <script src="~/js/Vue.js"></script>
+    <script src="~/js/axios.js"></script>
+
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="app">
+        <div class="border-1"><h5>新增盘点单</h5></div>
+        <table class="table table-bordered">
+            <tr>
+                <td>盘点单号</td>
+                <td>
+                    <input type="text" v-model.string="obj.ChName" />
+                </td>
+            </tr>
+            <tr>
+                <td>关联订单号</td>
+                <td> <input type="text" v-model.string="obj.ChRelevance" /></td>
+            </tr>
+            <tr>
+                <td>制单人</td>
+                <td> <input type="text" v-model.string="obj.ChPrepared" /></td>
+            </tr>
+            <tr>
+                <td>备注</td>
+                <td> <input type="text" v-model.string="obj.ChAddres" /></td>
+
+            </tr>
+        </table>
+        <button v-on:click="Add">添加</button>
+    </div>
+    <script>
+        var vue = new Vue({
+            el: '#app',
+            data: {
+                info: {},
+                obj: {
+                }
+            },
+            methods: {
+                //反射添加
+                Add() {
+                    axios
+                        .post('http://localhost:57059/api/PanDian/PanDianAdd', this.obj)
+                        .then((res) => {
+                            if (res.data > 0) {
+                                alert('添加成功！');
+                                location.href = "/ColinPanDian/PDshow";
+                            }
+                        });
+                }, 
+            }, 
+        });
+    </script>
+</body>
+</html>

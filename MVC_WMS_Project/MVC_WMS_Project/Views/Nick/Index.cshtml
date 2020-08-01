@@ -1,0 +1,157 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<script src="~/js/Vue.js"></script>
+<script src="~/js/axios.js"></script>
+
+<div id="app" style="margin-left:50px;margin-top:50px;width:1200px">
+    <div>
+        <h5>数据筛选</h5>
+        <div style="margin-left:50px">
+            用户名：&nbsp;&nbsp;<input type="text" v-model="name" placeholder="请输入用户名" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            工  号：&nbsp;&nbsp;<input type="text" v-model="gonghao" placeholder="请输入工号" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            部  门：&nbsp;
+            <select v-model="bumen" v-on:change="selectdep($event)">
+                <option value=0>全部</option>
+                <option v-for="(x,index) in bumens" :key="index" :value="x.id">{{x.departmentName}}</option>
+            </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            角色：&nbsp;
+            <select v-model="juese" v-on:change="selectrole($event)">
+                <option value=0>全部</option>
+                <option v-for="(x,index) in jueses" :key="index" :value="x.id">{{x.roleName}}</option>
+            </select>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button v-on:click="search">查询</button>
+        </div>
+
+
+
+    </div>
+
+    <div>
+        <h5>数据列表</h5>
+        <div style="float:right">
+            <button v-on:click="Add()">新增</button>
+            <button v-on:click="Edit()">编辑</button>
+            <button v-on:click="Del()">删除</button>
+            <button v-on:click="ReLoad()">刷新</button>
+            <button v-on:click="Out()">导出</button>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>用户名</td>
+                    <td>工号</td>
+                    <td>真名</td>
+                    <td>邮箱</td>
+                    <td>手机号</td>
+                    <td>固定电话</td>
+                    <td>创建时间</td>
+                    <td>操作</td>
+                </tr>
+            </thead>
+            <tbody v-for="m in item">
+                <tr>
+                    <td>{{m.userName}}</td>
+                    <td>{{m.userNumber}}</td>
+                    <td>{{m.name}}</td>
+                    <td>{{m.e_mail}}</td>
+                    <td>{{m.phone}}</td>
+                    <td>{{m.pelephone}}</td>
+                    <td>{{m.createTime}}</td>
+                    <td><a v-on:click="Del(m.id)">删除</a></td>
+                    @*<td><button v-on:click="Del({{m.id}})">删除</button></td>*@
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                item: null,
+                bumens: null,
+                jueses: null,
+                name: "",
+                gonghao:"",
+                bumen: 0,
+                juese:0,
+            }
+        },
+
+        mounted: function () {
+            this.Show();
+            this.Bumen();
+            this.Juese();
+        },
+
+        methods: {
+            Show: function () {
+                axios({
+                    method: "get",
+                    url: "http://localhost:57059/api/showuser",
+                }).then((res => (this.item = res.data)))
+            },
+            Bumen: function () {
+                axios({
+                    method: "get",
+                    url: "http://localhost:57059/api/showdepart",
+                }).then((res => (this.bumens = res.data)))
+            },
+            Juese: function () {
+                axios({
+                    method: "get",
+                    url: "http://localhost:57059/api/showrole",
+                }).then((res) => {
+
+                    this.jueses = res.data;
+
+                })
+            },
+
+            selectrole(event) {
+                this.juese = event.target.value;
+            },
+
+            selectdep(event) {
+                this.bumen = event.target.value;
+
+            },
+            search: function () {
+                axios({
+                    method: "get",
+                    url: "http://localhost:57059/api/search?name=" + this.name + "&gonghao=" + this.gonghao + "&did=" + this.bumen + "&jid=" + this.juese,
+                }).then((res => (this.item = res.data)))
+            },
+
+            Del(id) {
+                alert(id);
+                axios({
+                    method: "post",
+                    url: "http://localhost:57059/api/deluser?id="+id,
+                }).then((res) => {
+                    if (res.data >= 0) {
+                        alert("删除成功");
+                        this.search();
+                    } else {
+                        alert("删除失败");
+                    }
+                })
+            }
+        }
+    })
+
+
+
+
+
+</script>

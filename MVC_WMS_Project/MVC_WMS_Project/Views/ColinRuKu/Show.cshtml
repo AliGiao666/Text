@@ -1,0 +1,457 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Show</title>
+    <script src="~/js/Vue.js"></script>
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+    <script src="~/js/axios.js"></script>
+    <link href="~/css/ku.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <!--startprint1-->
+    <!--打印内容开始-->
+    <div id="app">
+
+        <div id="div1">
+            <div id="div2"></div>
+            <span id="h3_1"><b>入库管理</b></span>
+        </div>
+        <div id="div1">
+            <label id="c1"><b>数据筛选</b></label>
+            <hr />
+            <div id="searchs">
+                <label>入库单号:</label>
+                <input v-model="dingDan" type="text" placeholder="请输入单号" />
+                <label>入库类型:</label>
+                <select v-model="leiXing" v-on:change="ruType($event)">
+                    <option value="">请选择</option>
+                    <option v-for="(row,index) in info1" :key="index" :value="row.jlName">{{row.jlName}}</option>
+                </select>
+                <label>入库状态:</label>
+                <select v-model="zhuangTai" v-on:change="ruState($event)">
+                    <option value="">请选择</option>
+                    <option v-for="(row,index) in info2" :key="index" :value="row.sName">{{row.sName}}</option>
+                </select>
+                <button v-on:click="Search">查询</button>
+            </div>
+            <hr />
+            <div>
+                <label>数据列表</label>
+                <div style="float:right">
+                    <button v-on:click="Add">新增</button>
+                    <button v-on:click="Daochu">导出</button>
+                    <button href="#" v-on:click="preview(1)">打印整个页面</button>
+                </div>
+
+                <table class="table table-bordered ">
+                    <thead>
+                        <tr>
+                            <td><input type="checkbox" /></td>
+                            <td>订单号</td>
+                            <td>产品名称</td>
+                            <td>产品编号</td>
+                            <td>批次</td>
+                            <td>规格</td>
+                            <td>数量</td>
+                            <td>库位</td>
+                            <td>入库类型</td>
+                            <td>供应商</td>
+                            <td>制单人</td>
+                            <td>状态</td>
+                            <td>审核人</td>
+                            <td>审核时间</td>
+                            <td>操作</td>
+                        </tr>
+                    </thead>
+
+                    <tbody v-for="(row,index) in info">
+                        <tr v-if="index>=(curpage-1)*pagesize&&index<curpage*pagesize">
+                            <td><input type="checkbox" v-model="checkList" :value="row.puid" /></td>
+
+                            <td>{{row.puName}}</td>
+                            <td>{{row.prName}}</td>
+                            <td>{{row.prNumber}}</td>
+                            <td>{{row.puBatch}}</td>
+                            <td>{{row.spName }}</td>
+                            <td>{{row.puNumber}}</td>
+                            <td>{{row.stName}}</td>
+                            <td>{{row.jlName}}</td>
+                            <td>{{row.puSupplierName}}</td>
+                            <td>{{row.puPrepared}}</td>
+                            <td>{{row.sName}}</td>
+                            <td>{{row.puAudit}}</td>
+                            <td>{{row.puAuditTime}}</td>
+                            <td>
+                                <a href="#" v-on:click="Upt(row.puid)">编辑</a>
+                                &nbsp;&nbsp;<a href="#" v-on:click="Del(row.puid)">删除</a>
+                                &nbsp;&nbsp;<a href="#" v-on:click="Audit(row.sName,row.puid)" data-toggle="modal" data-target="#shenHe">审核</a>
+                                <div class="modal fade " id="shenHe" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                    <div style="width:100%;">
+                                        <div class="modal-content ">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                    &times;审核详情展示
+                                                </button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <td>入库单号</td>
+                                                            <td>入库类型</td>
+                                                            <td>状态</td>
+                                                            <td>供应商名称</td>
+                                                            <td>供应商联系人</td>
+                                                            <td>电话</td>
+                                                            <td>制单人</td>
+                                                            <td>制单日期</td>
+                                                            <td>产品编码</td>
+                                                            <td>产品名称</td>
+                                                            <td>规格</td>
+                                                            <td>批次</td>
+                                                            <td>单价</td>
+                                                            <td>入库数量</td>
+                                                            <td>总价</td>
+                                                            <td>库位</td>
+                                                            <td>审核</td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody v-for="ss in shenHe">
+                                                        <tr>
+                                                            <td>{{ss.puName}}</td>
+                                                            <td>{{ss.jlName}}</td>
+                                                            <td>{{ss.sName}}</td>
+                                                            <td>{{ss.puSupplierName }}</td>
+                                                            <td>{{ss.puAuditPeople}}</td>
+                                                            <td>{{ss.puAuditPhone}}</td>
+                                                            <td>{{ss.puPrepared}}</td>
+                                                            <td>{{ss.puPreparedTime}}</td>
+                                                            <td>{{ss.prNumber}}</td>
+                                                            <td>{{ss.prName}}</td>
+                                                            <td>{{ss.spName}}</td>
+                                                            <td>{{ss.puBatch}}</td>
+                                                            <td>{{ss.prPrice}}</td>
+                                                            <td>{{ss.puNumber}}</td>
+                                                            <td>{{ss.puTotalPrice}}</td>
+                                                            <td>{{ss.stName }}</td>
+                                                            <td> 
+                                                                <button class="badge-info" v-on:click="Pass(ss.puid)">点击我进行审核</button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                    关闭
+                                                </button>
+                                            </div>
+                                        </div><!-- /.modal-content -->
+                                    </div><!-- /.modal -->
+                                </div>
+                                <a href="#" v-on:click="Motai(row.puid)" data-toggle="modal" data-target="#myModal">
+                                    查看
+                                </a>
+                                <!-- 模态框（Modal） -->
+                                <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                    <div style="width:100%;">
+                                        <div class="modal-content ">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                    &times;入库详情展示
+                                                </button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <td>入库单号</td>
+                                                            <td>入库类型</td>
+                                                            <td>入库状态</td>
+                                                            <td>供应商名称</td>
+                                                            <td>供应商联系人</td>
+                                                            <td>电话</td>
+                                                            <td>制单人</td>
+                                                            <td>制单日期</td>
+                                                            <td>产品编码</td>
+                                                            <td>产品名称</td>
+                                                            <td>规格</td>
+                                                            <td>批次</td>
+                                                            <td>单价</td>
+                                                            <td>入库数量</td>
+                                                            <td>总价</td>
+                                                            <td>库位</td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody v-for="row in motai">
+                                                        <tr>
+                                                            <td>{{row.puName}}</td>
+                                                            <td>{{row.jlName}}</td>
+                                                            <td>{{row.sName}}</td>
+                                                            <td>{{row.puSupplierName }}</td>
+                                                            <td>{{row.puAuditPeople}}</td>
+                                                            <td>{{row.puAuditPhone}}</td>
+                                                            <td>{{row.puPrepared}}</td>
+                                                            <td>{{row.puPreparedTime}}</td>
+                                                            <td>{{row.prNumber}}</td>
+                                                            <td>{{row.prName}}</td>
+                                                            <td>{{row.spName}}</td>
+                                                            <td>{{row.puBatch}}</td>
+                                                            <td>{{row.prPrice}}</td>
+                                                            <td>{{row.puNumber}}</td>
+                                                            <td>{{row.puTotalPrice}}</td>
+                                                            <td>{{row.stName }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                    关闭
+                                                </button>
+                                            </div>
+                                        </div><!-- /.modal-content -->
+                                    </div><!-- /.modal -->
+                                </div>&nbsp;&nbsp;
+
+                            </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+                @*<button v-on:click="checkAnti">反选</button>*@
+                <button v-on:click="checkAll" class="xuan">全选</button>
+                <button v-on:click="checkNone" class="xuan">全不选</button>
+                <nav id="nav1" style="float:right">
+                    <ul class="pagination pagination-lg">
+                        <template v-for="page in Math.ceil(info.length/pagesize)">
+                            <li v-on:click="PrePage()" id="prepage" v-if="page==1" class="disabled"><a href="#" class="a1">上一页</a></li>
+                            <li v-if="page==1" id="prepage1" class="active" v-on:click="NumPage(page, $event)"><a href="#" class="a2">{{page}}</a></li>
+                            <li id="prepage2" v-else v-on:click="NumPage(page, $event)"><a href="#" class="a2">{{page}}</a></li>
+                            <li id="nextpage" v-on:click="NextPage()" v-if="page==Math.ceil(info.length/pagesize)"><a href="#" class="a1">下一页</a></li>
+                        </template>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+    </div>
+    <!--打印内容结束-->
+    <!--endprint1-->
+    <script>
+        var vue = new Vue({
+            el: '#app',
+            data() {
+                return {
+
+                    //显示
+                    motai: [],
+                    shenHe: [],
+
+                    info: [],
+                    info1: [],
+                    info2: [],
+                    dingDan: "",
+                    leiXing: "",
+                    zhuangTai: "",
+                    //分页
+                    pagesize: 5,
+                    curpage: 1,//当前页的页码
+                    //全选反选
+                    checked: false,
+                    checkList: [],//用于存储被选中的数据
+                }
+            },
+            mounted: function () {
+                //显示主体
+                this.Show();
+                //显示入库类型
+                this.Type();
+                //显示状态
+                this.State();
+            },
+            methods: {
+                //show: function () {
+                //    axios
+                //        .get('http://localhost:57059/api/ruku/RKShow')
+                //        .then(Response => (this.info = Response.data))
+                //},
+                //显示主体
+                Show: function () {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:57059/api/ruku/RKShow",
+                    }).then((res => (this.info = res.data)))
+
+                },
+                Audit(sName, id) {
+                    if (sName == "审核失败") {
+                        alert("本条信息已经是审核失败状态啦");
+                        return;
+                    }
+                    else if (sName == "审核成功") {
+                        alert("本条信息已经是审核成功状态啦");
+                        return;
+                    }
+                    else {
+                        axios({
+                            method: "get",
+                            url: "http://localhost:57059/api/ruku/RkXQShow?id=" + id,
+                        }).then((res => (this.shenHe = res.data)))
+                    }
+                },//修改状态  
+                Pass(id) { 
+                    window.location.href = "/ColinRuKu/AlertState?id=" + id;
+                },
+                //显示入库类型
+                Type: function () {
+                    axios
+                        .get('http://localhost:57059/api/ruku/RKTShow')
+                        .then(Response => (this.info1 = Response.data))
+                },
+                //显示状态
+                State: function () {
+                    axios
+                        .get('http://localhost:57059/api/default/ZTShow')
+                        .then(Response => (this.info2 = Response.data))
+                },
+
+                //获取下拉框id
+                ruType(event) {
+                    this.leiXing = event.target.value;
+                },
+                //获取下拉框id
+                ruState(event) {
+                    this.zhuangTai = event.target.value;
+                },
+                //模态显示
+                Motai: function (puid) {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:57059/api/ruku/RkXQShow?id=" + puid,
+                    }).then((res => (this.motai = res.data)))
+
+                },
+                //查询
+                Search: function () {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:57059/api/ruku/RKSearch?name=" + this.dingDan + "&jlid=" + this.leiXing + "&sid=" + this.zhuangTai,
+                    }).then((res => (this.info = res.data)))
+                },
+                Upt(id) {
+                    window.location.href = "/ColinRuKu/Update?id=" + id;
+                },
+
+                //导出
+                Daochu() {
+                    location.href = "http://localhost:57059/api/ruku/DaoContractList";
+                },
+                //跳转添加
+                Add() {
+                    location.href = "/ColinRuKu/Add";
+                },
+                //删除
+                Del(id) {
+                    axios({
+                        method: "post",
+                        url: "http://localhost:57059/api/ruku/Deletes?m=" + id,
+                    }).then((res) => {
+                        if (res.data >= 0) {
+                            alert("删除成功");
+                            location.href = "/ColinRuKu/show";
+                        } else {
+                            alert("删除失败");
+                        }
+                    })
+
+                },//打印
+                preview(oper) {
+                    if (oper < 10) {
+                        bdhtml = window.document.body.innerHTML;//获取当前页的html代码
+                        sprnstr = "<!--startprint" + oper + "-->";//设置打印开始区域
+                        eprnstr = "<!--endprint" + oper + "-->";//设置打印结束区域
+                        prnhtml = bdhtml.substring(bdhtml.indexOf(sprnstr) + 18); //从开始代码向后取html
+                        prnhtml = prnhtml.substring(0, prnhtml.indexOf(eprnstr));//从结束代码向前取html
+                        window.document.body.innerHTML = prnhtml;
+                        window.print();
+                        window.document.body.innerHTML = bdhtml;
+                    } else {
+                        window.print();
+                    }
+
+                },
+                //全不选
+                checkNone() {
+                    this.checkList = []
+                },
+                //全选
+                checkAll() {
+                    var _this = this;
+                    if (!_this.checked) {
+                        _this.checkList = [];
+                        this.info.forEach(function (a) {
+                            _this.checkList.push(a.puid);
+                        });
+                    }
+                    //this.ck = []
+                    //this.info.forEach(i => {
+                    //    is.ck.push(i)
+                    //})
+                },
+                ////反选
+                //checkAnti() {
+                //    if (this.checked) {
+                //        this.checkList = [];
+                //    }
+                //    //this.info.forEach(function (a) {
+                //    //    if (this.checkList.indexOf(a.puid) != -1) {
+                //    //        this.checkList.splice(this.checkList.indexOf(a.puid), 1);
+                //    //    } else {
+                //    //        this.checkList.push(a.puid)
+                //    //    }
+                //    //})
+                //},
+
+                //上一页方法
+                PrePage() {
+                    if (this.curpage == 1) {
+                        return
+                    }
+                    this.curpage = this.curpage - 1
+                },
+                ////下一页方法
+                NextPage() {
+                    if (this.curpage == Math.ceil(this.info.length / this.pagesize)) {
+                        return
+                    }
+                    this.curpage = this.curpage + 1
+                },
+                //点击页码的方法a
+                NumPage: function (num, event) {
+                    if (this.curpage == num) {
+                        return;
+                    }
+                    this.curpage = num;
+                }
+            },
+
+
+        });
+    </script>
+</body>
+</html>

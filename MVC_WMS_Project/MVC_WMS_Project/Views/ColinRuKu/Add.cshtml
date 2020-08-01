@@ -1,0 +1,149 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Add</title>
+    <script src="~/js/Vue.js"></script>
+    <script src="~/js/axios.js"></script>
+
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="app">
+        <div class="border-1"><h5>新增入库单</h5></div>
+        <table class="table table-bordered">
+            <tr>
+                <td>入库单号</td>
+                <td>
+                    <input type="text" v-model.string="obj.PuName" />
+                </td>
+            </tr>
+            <tr>
+                <td>关联订单号</td>
+                <td> <input type="text" v-model.string="obj.PuRelevance" /></td>
+            </tr>
+            <tr>
+                <td>制单人</td>
+                <td> <input type="text" v-model.string="obj.PuPrepared" /></td>
+            </tr>
+
+            <tr>
+                <td>供应商编号</td>
+                <td>
+                    <input type="text" v-model.string="obj.PuAuditNum" />
+                </td>
+            </tr>
+            <tr>
+                <td>供应商名称</td>
+                <td> <input type="text" v-model.string="obj.PuSupplierName" /></td>
+            </tr>
+            <tr>
+                <td>供应商联系人</td>
+                <td> <input type="text" v-model.string="obj.PuAuditPeople" /></td>
+            </tr>
+            <tr>
+                <td>供应商联系方式</td>
+                <td> <input type="text" v-model.string="obj.PuAuditPhone" /></td>
+
+            </tr> 
+            <tr>
+                <td>备注</td>
+                <td> <input type="text" v-model.string="obj.PuAddres" /></td>
+
+            </tr> 
+        </table>
+         
+        <div class="border-1"><h5>入库产品信息</h5></div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td><input type="checkbox" /></td>
+                    <td>产品名称</td>
+                    <td>产品编码</td>
+                    <td>规格</td>
+                    <td>批次</td>
+                    <td>单价</td>
+                    <td>入库数量</td>
+                    <td>总价</td>
+                    <td>库位</td>
+                    <td>操作</td>
+                </tr>
+
+            </thead>
+            <tbody>
+                <tr v-for="(row,index) in info">
+                    <td><input type="checkbox" /></td>
+                    <td>{{row.prName}}</td>
+                    <td>{{row.prNumber}}</td>
+                    <td>{{row.spName}}</td>
+                    <td>{{row.puBatch}}</td>
+                    <td>{{row.prPrice}}</td>
+                    <td>{{row.puNumber}}</td>
+                    <td>{{row.prPrice*row.puNumber}}</td>
+                    <td>{{row.stName}}</td>
+                    <td><a href="#" v-on:click="Del(row.puid)">删除</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button v-on:click="Add">添加</button>
+    </div>
+    <script>
+        var vue = new Vue({
+            el: '#app',
+            data: {
+                info: {},
+                obj: {
+                }
+            },
+            mounted: function () {
+                //显示主体
+                this.Show();  
+            },
+            methods: {
+                //反射添加
+                Add() {
+                    axios
+                        .post('http://localhost:57059/api/Default/AddRuKu', this.obj)
+                        .then((res) => {
+                            if (res.data > 0) {
+                                alert('添加成功！');
+                                location.href = "/ColinRuKu/show";
+                            }
+                        });
+                },
+                //显示66
+                Show: function () {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:57059/api/ruku/AddShow",
+                    }).then((res => (this.info = res.data)))
+
+                },
+                //删除
+                Del(id) {
+                    axios({
+                        method: "post",
+                        url: "http://localhost:57059/api/ruku/Deletes?m=" + id,
+                    }).then((res) => {
+                        if (res.data >= 0) {
+                            alert("删除成功");
+                        } else {
+                            alert("删除失败");
+                        }
+                    })
+
+                },
+            },
+
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PDUpdate</title>
+    <script src="~/js/Vue.js"></script>
+    <script src="~/js/axios.js"></script>
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="app">
+        <table class="table table-bordered">
+            <tr>
+                <td>盘点单号</td>
+                <td><input type="text" v-model="obj.ChName" disabled="disabled" /></td>
+            </tr>
+            <tr>
+                <td>盘点类型</td>
+                <td>
+                    <select v-model="obj.Clid" v-on:change="ruType($event)">
+                        <option value="">请选择</option>
+                        <option v-for="(row,index) in info1" :key="index" :value="row.clid">{{row.clName}}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>关联单号</td>
+                <td> <input type="text" v-model="obj.ChRelevance" /></td>
+            </tr>
+            <tr>
+                <td>状态</td>
+                <td>
+                    <select v-model="obj.Sid" v-on:change="ruState($event)">
+                        <option value="">请选择</option>
+                        <option v-for="(row,index) in info2" :key="index" :value="row.sid">{{row.sName}}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>制单人</td>
+                <td> <input type="text" v-model="obj.ChPrepared" /></td>
+            </tr>
+            
+            <tr>
+                <td>盘点数</td>
+                <td> <input type="text" v-model="obj.ChTake" /></td>
+            </tr>
+            <tr>
+                <td>盈亏数</td>
+                <td> <input type="text" v-model.string="obj.ChProfit" /></td>
+
+            </tr>
+            <tr>
+                <td>备注</td>
+
+                <td><input type="text" v-model.string="obj.ChAddres" /></td>
+            </tr>
+            <tr>
+                <td><button v-on:click="Upt">修改</button></td>
+
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        var id = location.href;
+        id = id.split("=")[1];
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    info1: [],
+                    info2: [],
+                    obj: {
+                        Chid: id,
+                        ChName: null,
+                        Clid: null,
+                        ChRelevance: null,
+                        Sid: null,
+                        ChPrepared: null, 
+                        ChTake: null,
+                        ChProfit: null,
+                        ChAddres: null,
+                    }
+                }
+            },
+
+            mounted: function () {
+                this.Show();
+                this.Type();
+                this.State();
+            },
+
+            methods: {
+                //显示盘点类型
+                Type: function () {
+                    axios
+                        .get('http://localhost:57059/api/PanDian/PDTShow')
+                        .then(Response => (this.info1 = Response.data));
+                },
+                //获取入库id
+                ruType(event) {
+                    this.obj.Clid = event.target.value;
+                },
+                //显示状态
+                State: function () {
+                    axios
+                        .get('http://localhost:57059/api/default/ZTShow')
+                        .then(Response => (this.info2 = Response.data))
+                },
+                ruState(event) {
+                    this.obj.Sid = event.target.value;
+                },
+                Show: function () {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:57059/api/PanDian/UpdateShow?id=" + id,
+                    }).then((res) => {
+                        this.obj.ChName = res.data.chName;
+                        this.obj.Clid = (res.data.clid);
+                        this.obj.ChRelevance = res.data.chRelevance;
+                        this.obj.Sid = res.data.sid;
+                        this.obj.ChPrepared = (res.data.chPrepared);
+                        this.obj.ChTake = (res.data.chTake);
+                        this.obj.ChProfit = (res.data.chProfit);
+                        this.obj.ChAddres = (res.data.chAddres);
+
+                    })
+                },
+                //反射修改
+                Upt() {
+                    axios
+                        .post('http://localhost:57059/api/PanDian/PDUpdate', this.obj)
+                        .then((res) => {
+                            if (res.data > 0) {
+                                alert('修改成功！');
+                                location.href = "/ColinPanDian/PDShow";
+                            }
+                        });
+                }
+            }
+        })
+    </script>
+</body>
+</html>

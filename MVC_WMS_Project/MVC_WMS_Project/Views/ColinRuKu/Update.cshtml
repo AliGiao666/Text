@@ -1,0 +1,165 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Update</title>
+    <script src="~/js/Vue.js"></script>
+    <script src="~/js/axios.js"></script>
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="app">
+        <table class="table table-bordered">
+            <tr>
+                <td>入库类型</td>
+                <td>
+                    <select v-model="obj.Jlid" v-on:change="ruType($event)">
+                        <option value="">请选择</option>
+                        <option v-for="(row,index) in info1" :key="index" :value="row.jlid">{{row.jlName}}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>订单号</td>
+                <td> <input type="text" v-model="obj.PuName" /></td>
+            </tr>
+            <tr>
+                <td>批次</td>
+                <td> <input type="text" v-model="obj.PuBatch" /></td>
+            </tr>
+            <tr>
+                <td>审核人</td>
+                <td> <input type="text" v-model="obj.PuAudit" /></td>
+            </tr>
+            <tr>
+                <td>关联订单</td>
+                <td> <input type="text" v-model="obj.puRelevance" /></td>
+            </tr>
+            <tr>
+                <td>供应商编号</td>
+                <td> <input type="text" v-model="obj.puAuditNum" /></td>
+            </tr>
+            <tr>
+                <td>供应商名称</td>
+                <td> <input type="text" v-model.string="obj.PuSupplierName" /></td>
+
+            </tr>
+            <tr>
+                <td>供应商联系人</td>
+                <td>  <input type="text" v-model.string="obj.PuAuditPeople" /></td>
+
+            </tr>
+            <tr>
+
+                <td>供应商联系方式</td>
+                <td>  <input type="text" v-model.string="obj.PuAuditPhone" /></td>
+            </tr>
+            <tr>
+                <td>制单人</td>
+                <td>
+                    <input type="text" v-model.string="obj.PuPrepared" />
+                </td>
+
+            </tr>
+            <tr>
+                <td>制单时间</td>
+                <td> <input type="text" v-model="obj.PuPreparedTime" /></td>
+            </tr>
+            <tr>
+                <td>备注</td>
+
+                <td><input type="text" v-model.string="obj.PuAddres" /></td>
+            </tr>
+            <tr>
+                <td><button v-on:click="Upt">修改</button></td>
+
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        var id = location.href;
+        id = id.split("=")[1];
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    info1: [], 
+                    obj: {
+                        Puid: id,
+
+                        PuName : null,
+                        PuBatch: null,
+                        PuAudit: null,
+
+                        Jlid: null,
+                        puRelevance: null,
+                        puAuditNum: null,
+                        PuSupplierName: null,
+                        PuAuditPeople: null,
+                        PuAuditPhone: null,
+                        PuPrepared: null,
+                        PuPreparedTime: null,
+                        PuAddres: null
+                    }
+                }
+            },
+
+            mounted: function () {
+                this.Show();
+                this.Type() 
+            },
+
+            methods: {
+                //显示入库类型
+                Type: function () {
+                    axios
+                        .get('http://localhost:57059/api/ruku/RKTShow')
+                        .then(Response => (this.info1 = Response.data));
+                },
+                //获取入库id
+                ruType(event) {
+                    this.obj.Jlid = event.target.value;
+                },
+                Show: function () {
+                    axios({
+                        method: "get",
+                        url: "http://localhost:57059/api/ruku/UpdateShow?id=" + id,
+                    }).then((res) => {
+                       
+                        this.obj.Jlid = (res.data.jlid);
+                        this.obj.puRelevance = res.data.puRelevance;
+                        this.obj.puAuditNum = res.data.puAuditNum;
+                        this.obj.PuSupplierName = (res.data.puSupplierName);
+                        this.obj.PuAuditPeople = (res.data.puAuditPeople);
+                        this.obj.PuAuditPhone = (res.data.puAuditPhone);
+                        this.obj.PuPrepared = (res.data.puPrepared);
+                        this.obj.PuPreparedTime = (res.data.puPreparedTime);
+                        this.obj.PuAddres = (res.data.puAddres); 
+
+                        this.obj.PuName  = (res.data.puName );
+                        this.obj.PuBatch = (res.data.puBatch);
+                        this.obj.PuAudit = (res.data.puAudit);
+                    })
+                },
+                Upt() {
+                    axios
+                        .post('http://localhost:57059/api/RuKu/RKUpdate', this.obj)
+                        .then((res) => {
+                            if (res.data > 0) {
+                                alert('修改成功！');
+                                location.href = "/Colinruku/show";
+                            }
+                        });
+                }
+            }
+        })
+    </script>
+</body>
+</html>
